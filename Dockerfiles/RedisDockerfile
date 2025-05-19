@@ -1,0 +1,7 @@
+FROM redis:latest
+
+# Expose port 5002 for application connectivity
+EXPOSE 5002
+
+# Override the default Redis port with 5002
+CMD ["redis-server", "--port", "5002"]

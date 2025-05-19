@@ -1,0 +1,59 @@
+﻿@inject IJSRuntime JSRuntime
+
+<div class="toast-container" style="position: fixed; top: 1rem; right: 1rem; z-index: 1050;">
+    @foreach (var toast in Toasts)
+    {
+        <div class="toast @toast.Type" @key="toast.Id">
+            <div class="toast-header">
+                <span class="toast-title">@toast.Title</span>
+                <button class="toast-close-btn" @onclick="() => RemoveToast(toast.Id)">×</button>
+            </div>
+            <div class="toast-body">@toast.Message</div>
+        </div>
+    }
+</div>
+
+@code {
+    private List<ToastMessage> Toasts = new();
+
+    public void ShowToast(string message, string title = "Notification", string type = "info")
+    {
+        var id = Guid.NewGuid();
+        Toasts.Add(new ToastMessage
+        {
+            Id = id,
+            Title = title,
+            Message = message,
+            Type = type
+        });
+
+        StateHasChanged();
+
+        // Automatically remove the toast after 5 seconds
+        _ = RemoveToastAfterDelay(id, 5000);
+    }
+
+    private async Task RemoveToastAfterDelay(Guid id, int delay)
+    {
+        await Task.Delay(delay);
+        RemoveToast(id);
+    }
+
+    private void RemoveToast(Guid id)
+    {
+        var toast = Toasts.FirstOrDefault(t => t.Id == id);
+        if (toast != null)
+        {
+            Toasts.Remove(toast);
+            StateHasChanged();
+        }
+    }
+
+    private class ToastMessage
+    {
+        public Guid Id { get; set; }
+        public string Title { get; set; } = string.Empty;
+        public string Message { get; set; } = string.Empty;
+        public string Type { get; set; } = "info"; // "info", "success", "error"
+    }
+}
